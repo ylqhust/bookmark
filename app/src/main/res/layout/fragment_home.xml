@@ -1,0 +1,28 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_home_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ylqhust.bookmarks.ui.Fragment.HomeFragment">
+    <RelativeLayout
+        android:id="@+id/fragment_home_relativelayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/fragment_h_r_imageview"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_laptop_chromebook_black_24dp"
+            android:layout_centerInParent="true"/>
+        <TextView
+            android:id="@+id/fragment_h_r_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_data"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="20sp"
+            android:layout_below="@+id/fragment_h_r_imageview"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
+</FrameLayout>

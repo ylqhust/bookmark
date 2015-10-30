@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/datasave">
+        <menu>
+            <item
+                android:id="@+id/a_m_n_menu_backup"
+                android:icon="@drawable/ic_backup_black_24dp"
+                android:title="@string/backup"/>
+            <item
+                android:id="@+id/a_m_n_menu_sync"
+                android:icon="@drawable/ic_sync_black_24dp"
+                android:title="@string/sync"/>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/a_m_n_menu_userCenter"
+        android:icon="@drawable/ic_person_outline_black_24dp"
+        android:title="@string/usercenter"/>
+    <item
+        android:id="@+id/a_m_n_menu_privateSpace"
+        android:icon="@drawable/ic_lock_black_24dp"
+        android:title="@string/privateSpace"/>
+    <item
+        android:id="@+id/a_m_n_menu_settings"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/settings"/>
+</menu>

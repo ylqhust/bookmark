@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true">
+            <RelativeLayout
+                android:id="@+id/a_m_tab_1_relative"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/a_m_tab_1_image"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_home_black_24dp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/a_m_tab_2_relative"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/a_m_tab_2_image"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_public_black_24dp"
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/a_m_tab_3_relative"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/a_m_tab_3_image"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_people_black_24dp"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

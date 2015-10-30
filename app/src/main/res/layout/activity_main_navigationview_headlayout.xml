@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="160dp"
+    android:background="@drawable/activity_main_navigationview_headlayout_background"
+    >
+    <ImageView
+        android:id="@+id/a_m_n_h_imageview_userhead"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_account_circle_white_48dp" />
+
+    <TextView
+        android:id="@+id/a_m_n_h_textview_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="未登录"
+        android:textColor="@android:color/primary_text_dark"
+        android:layout_below="@+id/a_m_n_h_imageview_userhead"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"/>
+</RelativeLayout>
