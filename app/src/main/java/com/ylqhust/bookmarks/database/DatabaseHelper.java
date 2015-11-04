@@ -18,6 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private NodeHelper nodeHelper;
     private BookmarkHelper bookmarkHelper;
     private UserHelper userHelper;
+    private SearchHisHelper searchHisHelper;
 
     public DatabaseHelper(Context context,int Version)
     {
@@ -26,6 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         nodeHelper = NodeHelper.getInstance(this);
         bookmarkHelper = BookmarkHelper.getInstance(this);
         userHelper = UserHelper.getInstance(this);
+        searchHisHelper = SearchHisHelper.getInstance(this);
     }
 
     @Override
@@ -33,6 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(DatabaseModel.NODE.SQL_CREATE_TABLE);
         db.execSQL(DatabaseModel.BOOKMARK.SQL_CREATE_TABLE);
         db.execSQL(DatabaseModel.USER.SQL_CREATE_TABLE);
+        db.execSQL(DatabaseModel.SEARCHHISTORY.SQL_CREATE_TABLE);
         Log.i(TAG, "TABLE CREATED");
     }
 
@@ -109,4 +112,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public NodeHelper getNodeHelper(){return nodeHelper;}
     public BookmarkHelper getBookmarkHelper(){return bookmarkHelper;}
     public UserHelper getUserHelper(){return userHelper;}
+    public SearchHisHelper getSearchHisHelper(){return searchHisHelper;}
 }

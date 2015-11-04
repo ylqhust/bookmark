@@ -52,9 +52,4 @@ public class Bookmark {
         this.url = url;
         this.userID = userID;
     }
-
-    public static Bookmark testBuilder(int bookmarkNum){
-        return new Bookmark(bookmarkNum+1,"null",bookmarkNum,System.currentTimeMillis(),
-                false,false,false,false,false,System.currentTimeMillis(),null,"null",null,"STRANGER");
-    }
 }

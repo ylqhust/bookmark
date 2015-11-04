@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/search_lv_item_tv_clear"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:text="@string/clear"
+        android:layout_alignParentRight="true"
+        android:gravity="center"
+        android:textColor="#78909c"
+        android:clickable="true"/>
+    <TextView
+        android:id="@+id/search_lv_item_tv_string"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_toLeftOf="@+id/search_lv_item_tv_clear"
+        android:text="搜索记录"
+        android:textColor="#000000"
+        android:gravity="center|left"
+        android:layout_marginLeft="8dp"
+        android:clickable="true"
+        />
+</RelativeLayout>

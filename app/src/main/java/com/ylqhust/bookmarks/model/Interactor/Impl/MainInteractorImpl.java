@@ -1,12 +1,14 @@
 package com.ylqhust.bookmarks.model.Interactor.Impl;
 
+import android.content.Context;
 import android.database.Cursor;
 
+import com.ylqhust.bookmarks.utils.Utils;
 import com.ylqhust.bookmarks.database.DatabaseHelper;
-import com.ylqhust.bookmarks.database.DatabaseModel;
 import com.ylqhust.bookmarks.model.Interactor.Interface.MainInteractor;
 import com.ylqhust.bookmarks.model.dataModel.Bookmark;
 import com.ylqhust.bookmarks.model.dataModel.Node;
+import com.ylqhust.bookmarks.network.NetworkUtils;
 import com.ylqhust.bookmarks.presenter.Listener.OnMainFinishListener;
 
 import java.util.ArrayList;
@@ -16,20 +18,81 @@ import java.util.List;
  * Created by apple on 15/10/29.
  */
 public class MainInteractorImpl implements MainInteractor {
+
+
+    /**
+     * 处理HomeTab按钮的点击事件
+     */
     @Override
-    public void HomeTabEvent(OnMainFinishListener listener) {
-        listener.HomeTabFinish();
+    public void onHomeTab(OnMainFinishListener listener) {
+        listener.onHomeTabFinished();
     }
 
     @Override
-    public void PublicTabEvent(OnMainFinishListener listener) {
-        listener.PublicTabFinish();
+    public void onPublicTab(OnMainFinishListener listener) {
+        listener.onPublicTabFinished();
     }
 
     @Override
-    public void PeopleTabEvent(OnMainFinishListener listener) {
-        listener.PeopleTabFinish();
+    public void onPeopleTab(OnMainFinishListener listener) {
+        listener.onPeopleTabFinished();
     }
+
+    /**
+     * 获取剪切板上的数据，判断是否是url类型的数据
+     * 如果是，获取url
+     * 如果有网络，获取url所表示的title，和shortcuturl
+     * @param listener
+     */
+    @Override
+    public void addBookmark(Context context,OnMainFinishListener listener) {
+        String url = Utils.getClipboardText(context);
+        if (url.contains("http")){
+            listener.addBookmarkFinished(url,"","");
+            NetworkUtils.getInstance().getTS(listener,url);
+        }
+        else{
+            listener.addBookmarkFinished("","","");
+        }
+    }
+
+    /**
+     *获取搜索历史列表
+     * @param dbh
+     * @param listener*/
+    @Override
+    public void showSearchView(DatabaseHelper dbh, OnMainFinishListener listener) {
+        String userid = dbh.getUserHelper().getUserId();
+        List<String> strings = dbh.getSearchHisHelper().getHistory(userid);
+        listener.showSearchView(strings);
+    }
+
+    /**
+     * 清除一条历史记录
+     * @param position
+     * @param strings
+     * @param dbh
+     * @param listener
+     */
+    @Override
+    public void clearOneHistory(int position, List<String> strings, DatabaseHelper dbh, OnMainFinishListener listener) {
+        String userid = dbh.getUserHelper().getUserId();
+        dbh.getSearchHisHelper().delete(userid,strings.get(position));
+        strings.remove(position);
+        listener.onClearOneHistoryFinished(position, strings);
+    }
+
+    /**
+     * 清除所有历史记录
+     * @param dbh
+     * @param listener
+     */
+    @Override
+    public void clearAllHistory(DatabaseHelper dbh, OnMainFinishListener listener) {
+        dbh.getSearchHisHelper().deleteAll(dbh.getUserHelper().getUserId());
+        listener.onClearAllFinished();
+    }
+
 
     /**
      * 加载数据库文件
@@ -37,13 +100,13 @@ public class MainInteractorImpl implements MainInteractor {
      */
     @Override
     public void LoadDatabase(DatabaseHelper dbh,OnMainFinishListener listener) {
-        String userid = getUserId(dbh);
+        String userid = dbh.getUserHelper().getUserId();
         List<Node> allNode = getNodeList(dbh, userid);
         List<Bookmark> allBookmark = getBookmarkList(dbh, userid);
 
         List<Bookmark> headBookmark = new ArrayList<Bookmark>();
         for(int i=0;i<allBookmark.size();i++){
-            if (allBookmark.get(i).belongNodeNum == 0){
+            if (allBookmark.get(i).belongNodeNum == -1){
                 headBookmark.add(allBookmark.get(i));
                 allBookmark.remove(i);
                 i--;
@@ -57,6 +120,7 @@ public class MainInteractorImpl implements MainInteractor {
         return;
     }
 
+
     /**
      * 将节点根据所属关系归好,并返回头节点
      * @param allNode
@@ -64,7 +128,8 @@ public class MainInteractorImpl implements MainInteractor {
     private List<Node> Bind(List<Node> allNode) {
         List<Node> headNode = new ArrayList<Node>();
         for (int i=0;i<allNode.size();i++){
-            if (allNode.get(i).nodeNum == 0){
+            if (allNode.get(i).preNodeNum == -1){
+                allNode.get(i).preNode = null;
                 headNode.add(allNode.get(i));
             }
             for(int j=0;j<allNode.size();j++){
@@ -130,17 +195,4 @@ public class MainInteractorImpl implements MainInteractor {
     }
 
 
-    /**
-     * 获取数据库中的userid，如果没有用户的话，那么创建一个userid为STRANGER的用户，没有密码，相当于未登录用户
-     * @param dbh
-     * @return
-     */
-    private String getUserId(DatabaseHelper dbh) {
-        String userId = "STRANGER";
-        Cursor cs = dbh.getUserHelper().query();
-        if (cs.moveToNext()){
-            userId = cs.getString(cs.getColumnIndex(DatabaseModel.USER.CN_USERID));
-        }
-        return userId;
-    }
 }

@@ -36,8 +36,4 @@ public class Node {
 
     public void update(){}
 
-    public static Node testBuilder(int nodeNum){
-        return new Node("STRANGER",nodeNum+"name",nodeNum,System.currentTimeMillis(),
-                System.currentTimeMillis(),"null",nodeNum-1);
-    }
 }

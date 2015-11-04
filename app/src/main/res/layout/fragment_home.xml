@@ -25,4 +25,21 @@
             android:layout_below="@+id/fragment_h_r_imageview"
             android:layout_centerHorizontal="true"/>
     </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:id="@+id/fragment_home_tools_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fragment_home_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/fragment_home_tools_container">
+        </android.support.v7.widget.RecyclerView>
+    </RelativeLayout>
+
+
 </FrameLayout>

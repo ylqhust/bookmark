@@ -23,4 +23,22 @@
         android:title="@string/addBookmark"
         app:showAsAction="always"
         tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/a_m_menu_home_cancle"
+        android:title="@string/cancle"
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource"
+        android:visible="false"/>
+    <item
+        android:id="@+id/a_m_menu_home_null"
+        android:title=""
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource"
+        android:visible="false"/>
+    <item
+        android:id="@+id/a_m_menu_home_selectAll"
+        android:title="@string/selectAll"
+        app:showAsAction="always"
+        tools:ignore="AppCompatResource"
+        android:visible="false"/>
 </menu>

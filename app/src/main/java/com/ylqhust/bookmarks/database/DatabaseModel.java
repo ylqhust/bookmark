@@ -17,7 +17,7 @@ public class DatabaseModel {
 
 
     /**
-     * 数据库中的一张表
+     * 节点表
      */
     public class NODE{
         public static final String TABLE_NAME = "node";
@@ -47,7 +47,7 @@ public class DatabaseModel {
     }
 
     /**
-     * another table
+     * 书签表
      */
 
     public class BOOKMARK{
@@ -89,6 +89,9 @@ public class DatabaseModel {
 
     }
 
+    /**
+     * 用户表
+     */
     public class USER{
         public static final String TABLE_NAME = "user";
         public static final String CN_ID = "id";
@@ -106,6 +109,28 @@ public class DatabaseModel {
         public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXIST "+TABLE_NAME;
     }
 
+    /**
+     *搜索记录表
+     */
+    public class SEARCHHISTORY{
+        public static final String TABLE_NAME = "searchhistory";
+        public static final String CN_ID = "id";
+        public static final String CN_USERID = "userid";
+        public static final String CN_STRING = "string";
+        public static final String CN_FIRSTSEARCHTIME = "firsttime";
+        public static final String CN_LASTSEARCHTIME = "lasttime";
+        public static final String CN_COUNT = "count";
 
+        public static final String SQL_CREATE_TABLE = "CREATE TABLE "+TABLE_NAME+" ("+
+                CN_ID+" INTEGER PRIMARY KEY AUTOINCREMENT"+COMMA_SEP+
+                CN_USERID+VARCHAR_TYPE+COMMA_SEP+
+                CN_STRING+VARCHAR_TYPE+COMMA_SEP+
+                CN_FIRSTSEARCHTIME+BIGINT_TYPE+COMMA_SEP+
+                CN_LASTSEARCHTIME+BIGINT_TYPE+COMMA_SEP+
+                CN_COUNT+INTEGER_TYPE+
+                " )";
+
+        public static final String SQL_DELETE_TABLE = "DROP TABLE IF EXIST "+TABLE_NAME;
+    }
 
 }

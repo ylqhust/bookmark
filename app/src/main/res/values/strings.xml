@@ -12,5 +12,24 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="no_data">空空如也</string>
+    <string name="no_data">什么也没有</string>
+    <string name="nodename">节点名</string>
+    <string name="nodedes">节点描述</string>
+    <string name="url">URL</string>
+    <string name="title">标题</string>
+    <string name="newNode">新建节点</string>
+    <string name="OK">确定</string>
+    <string name="cancle">取消</string>
+    <string name="newBookmark">新建书签</string>
+    <string name="clearhistory">清空历史记录</string>
+    <string name="clear">清除</string>
+    <string name="send">发送</string>
+    <string name="view">浏览</string>
+    <string name="delete">删除</string>
+    <string name="modify">修改</string>
+    <string name="move">移动</string>
+    <string name="newname">新名称</string>
+    <string name="rename">重命名</string>
+    <string name="selectAll">全选</string>
+    <string name="share">分享</string>
 </resources>

@@ -63,6 +63,14 @@ public class UserHelper {
     }
 
     public Cursor query(){
-        return dbh.query(tableName,columns,null,null);
+        return dbh.query(tableName, columns, null, null);
+    }
+    public String getUserId(){
+        String userId = "STRANGER";
+        Cursor cs = dbh.getUserHelper().query();
+        if (cs.moveToNext()){
+            userId = cs.getString(cs.getColumnIndex(DatabaseModel.USER.CN_USERID));
+        }
+        return userId;
     }
 }

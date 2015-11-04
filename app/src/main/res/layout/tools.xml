@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="#03a9f4">
+    <RelativeLayout
+        android:id="@+id/tools_rela_delete"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+        <ImageView
+            android:src="@drawable/ic_delete_white_24dp"
+            android:layout_above="@+id/tools_tv_delete"
+            style="@style/tools_image"/>
+        <TextView
+            android:id="@+id/tools_tv_delete"
+            android:text="@string/delete"
+            style="@style/tools_tv"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/tools_rela_send"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+        <ImageView
+            android:src="@drawable/ic_send_white_24dp"
+            android:layout_above="@+id/tools_tv_send"
+            style="@style/tools_image"/>
+        <TextView
+            android:id="@+id/tools_tv_send"
+            android:text="@string/send"
+            style="@style/tools_tv"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/tools_rela_move"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+        <ImageView
+            android:src="@drawable/ic_share_white_24dp"
+            android:layout_above="@+id/tools_tv_share"
+            style="@style/tools_image"/>
+        <TextView
+            android:id="@+id/tools_tv_share"
+            android:text="@string/share"
+            style="@style/tools_tv"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/tools_rela_share"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+        <ImageView
+            android:src="@drawable/ic_switch_camera_white_24dp"
+            android:layout_above="@+id/tools_tv_move"
+            style="@style/tools_image"/>
+        <TextView
+            android:id="@+id/tools_tv_move"
+            android:text="@string/move"
+            style="@style/tools_tv"/>
+    </RelativeLayout>
+
+
+</LinearLayout>

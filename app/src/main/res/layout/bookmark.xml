@@ -4,9 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <LinearLayout
+        android:id="@+id/bookmark_linearlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageView
+            android:id="@+id/bookmark_image"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/github"/>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="16dp"
+    android:paddingRight="8dp"
+    android:paddingLeft="8dp"
+    android:paddingBottom="16dp">
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/modify_til_nodedes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/modify_et_rename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/newname"
+            android:drawableRight="@drawable/ic_clear_black_24dp"/>
+    </android.support.design.widget.TextInputLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+        <TextView
+            android:id="@+id/modify_tv_cancle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancle"
+            android:textColor="#e91e63"
+            android:textSize="18sp"
+            android:layout_toLeftOf="@+id/modify_tv_ok"
+            android:layout_marginRight="20dp"
+            android:clickable="true"/>
+        <TextView
+            android:id="@+id/modify_tv_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/OK"
+            android:textColor="#e91e63"
+            android:textSize="18sp"
+            android:layout_alignParentRight="true"
+            android:clickable="true"
+            />
+    </RelativeLayout>
+
+</LinearLayout>
