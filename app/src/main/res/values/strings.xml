@@ -32,4 +32,11 @@
     <string name="rename">重命名</string>
     <string name="selectAll">全选</string>
     <string name="share">分享</string>
+    <string name="NoselectAll">全不选</string>
+    <string name="warnning">警告</string>
+    <string name="warnningMessage">你确定要删除吗?</string>
+    <string name="deletecomplete">删除完成</string>
+    <string name="moveTo">移动到此</string>
+    <string name="checknullerror">请选择要移动的书签或节点</string>
+    <string name="movecomplete">移动完成</string>
 </resources>

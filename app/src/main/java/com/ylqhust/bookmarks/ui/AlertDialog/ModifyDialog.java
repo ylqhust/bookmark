@@ -10,13 +10,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ylqhust.bookmarks.R;
-import com.ylqhust.bookmarks.database.DatabaseHelper;
-import com.ylqhust.bookmarks.model.dataModel.Bookmark;
-import com.ylqhust.bookmarks.model.dataModel.Node;
-import com.ylqhust.bookmarks.presenter.Impl.ModifyDialogPresenterImpl;
-import com.ylqhust.bookmarks.presenter.Interface.ModifyDialogPresenter;
+import com.ylqhust.bookmarks.data.database.DatabaseHelper;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Bookmark;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Node;
+import com.ylqhust.bookmarks.mvp.presenter.Impl.ModifyDialogPresenterImpl;
+import com.ylqhust.bookmarks.mvp.presenter.Interface.ModifyDialogPresenter;
 import com.ylqhust.bookmarks.ui.widget.WidgetUtils;
-import com.ylqhust.bookmarks.view.ModifyDialogView;
+import com.ylqhust.bookmarks.mvp.view.ModifyDialogView;
 
 import java.util.List;
 

@@ -12,12 +12,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ylqhust.bookmarks.R;
-import com.ylqhust.bookmarks.database.DatabaseHelper;
-import com.ylqhust.bookmarks.model.dataModel.Bookmark;
-import com.ylqhust.bookmarks.model.dataModel.Node;
-import com.ylqhust.bookmarks.presenter.Impl.ChoseDialogPresenterImpl;
-import com.ylqhust.bookmarks.presenter.Interface.ChoseDialogPresenter;
-import com.ylqhust.bookmarks.view.ChoseDialogView;
+import com.ylqhust.bookmarks.data.database.DatabaseHelper;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Bookmark;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Node;
+import com.ylqhust.bookmarks.mvp.presenter.Impl.ChoseDialogPresenterImpl;
+import com.ylqhust.bookmarks.mvp.presenter.Interface.ChoseDialogPresenter;
+import com.ylqhust.bookmarks.mvp.view.ChoseDialogView;
 
 import java.util.List;
 
@@ -92,7 +92,7 @@ public class ChoseDialog implements ChoseDialogView,ModifyDialog.MDCDBridge{
                 String url = bookmark.url;
                 System.out.println("URL:" + url);
                 Intent send = new Intent(Intent.ACTION_SEND);
-                send.putExtra(Intent.EXTRA_TEXT, "标题:"+title+"\n\n"+url);
+                send.putExtra(Intent.EXTRA_TEXT, title+"\n"+url);
                 send.setType("text/plain");
                 context.startActivity(send);
             }
@@ -100,7 +100,7 @@ public class ChoseDialog implements ChoseDialogView,ModifyDialog.MDCDBridge{
         rela_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.delete(parentNode, bookmark,cdhfBridge.requestDbh(),headNode ,headBookmark);
+                presenter.delete(parentNode, bookmark, cdhfBridge.requestDbh(), headNode, headBookmark);
             }
         });
         rela_modify.setOnClickListener(new View.OnClickListener() {

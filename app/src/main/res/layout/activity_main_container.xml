@@ -4,13 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="?attr/actionBarSize"
-    android:paddingBottom="?attr/actionBarSize">
+    android:paddingBottom="@dimen/tools_rela_bar">
 
     <FrameLayout
         android:id="@+id/activity_main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </FrameLayout>
-
 </android.support.design.widget.CoordinatorLayout>

@@ -1,10 +1,10 @@
 package com.ylqhust.bookmarks;
 
-import com.ylqhust.bookmarks.database.BookmarkHelper;
-import com.ylqhust.bookmarks.database.DatabaseHelper;
-import com.ylqhust.bookmarks.database.NodeHelper;
-import com.ylqhust.bookmarks.model.dataModel.Bookmark;
-import com.ylqhust.bookmarks.model.dataModel.Node;
+import com.ylqhust.bookmarks.data.database.BookmarkHelper;
+import com.ylqhust.bookmarks.data.database.DatabaseHelper;
+import com.ylqhust.bookmarks.data.database.NodeHelper;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Bookmark;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Node;
 
 /**
  * Created by apple on 15/10/31.

@@ -5,9 +5,6 @@ import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 
-import com.ylqhust.bookmarks.model.dataModel.SearchHistory;
-import com.ylqhust.bookmarks.utils.Compare;
-
 /**
  * Created by apple on 15/10/31.
  */

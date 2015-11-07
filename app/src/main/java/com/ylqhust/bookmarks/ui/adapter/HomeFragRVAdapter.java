@@ -2,20 +2,26 @@ package com.ylqhust.bookmarks.ui.adapter;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ylqhust.bookmarks.R;
-import com.ylqhust.bookmarks.model.dataModel.Bookmark;
-import com.ylqhust.bookmarks.model.dataModel.Node;
-import com.ylqhust.bookmarks.presenter.Interface.HomeFragPresenter;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Bookmark;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Node;
+import com.ylqhust.bookmarks.mvp.presenter.Interface.HomeFragPresenter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by apple on 15/10/31.
@@ -27,6 +33,9 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Node parentNode;
     private Context context;
     private HomeFragPresenter presenter;
+    private Set<TextView> bookmarkCounts = new HashSet<TextView>();
+    private Set<CheckBox> checkBoxes = new HashSet<CheckBox>();
+
 
     private final int BOOKMARK = 0x1;
     private final int NODE = 0x2;
@@ -77,7 +86,8 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             @Override
             public void onClick(View v) {
                 //跳会到父节点
-                presenter.stepBack(parentNode);
+                if (hfrvahfBridge.RequestIsLongClicked() == false)
+                    presenter.stepBack(parentNode);
             }
         });
     }
@@ -98,24 +108,49 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         holder.bookmarkUrl.setText(url);
         holder.bookmarkTitle.setText(title);
 
+        holder.checkBox.setVisibility(hfrvahfBridge.RequestIsLongClicked() == true ? View.VISIBLE : View.GONE);
+        holder.checkBox.setChecked(hfrvahfBridge.RequestThisBookmarkIfChecked(bookmark.bookmarkNum));
+
+        //将本页的checkbox保存起来，用于改变本页界面
+        if (!checkBoxes.contains(holder.checkBox))
+            checkBoxes.add(holder.checkBox);
+
+        //当状态改变的时候及时通知HomeFragment
+        holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                hfrvahfBridge.OneBookmarkCheckChangeHappend(bookmark.bookmarkNum, isChecked);
+            }
+        });
+
+
+
         holder.linearlayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.showChoseDailog(parentNode, bookmark);
+                if (hfrvahfBridge.RequestIsLongClicked() == false)
+                    presenter.showChoseDailog(parentNode, bookmark);
             }
         });
 
         holder.linearlayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                presenter.changeMenu(false);
+                if (hfrvahfBridge.RequestIsLongClicked() == false){
+                    //通知Fragment用户长按了
+                    hfrvahfBridge.LongClickHappend();
+                    //改变界面
+                    TextViewVisibilityChange(View.GONE);
+                    CheckBoxVisibilityChange(View.VISIBLE);
+                    holder.checkBox.setChecked(true);
+                }
                 return true;
             }
         });
 
-
         //设置小图标
     }
+
 
     /**
      * bind data to holder
@@ -125,8 +160,8 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private void bindNodeHolder(final NodeHolder holder, final int position) {
         if (currentPageNode.size() == 0)
             return;
-        Node node = currentPageNode.get(position-(parentNode==null?0:1));
-        String nodeName = node.nodeName;
+        final Node node = currentPageNode.get(position-(parentNode==null?0:1));
+        final String nodeName = node.nodeName;
         String nodeDes = node.nodeDes;
         String bookmarkCount = getBookmarkCount(node)+"";
 
@@ -134,21 +169,72 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         holder.nodeDes.setText(nodeDes);
         holder.bookmarkCount.setText(bookmarkCount);
 
+        boolean isLongChecked = hfrvahfBridge.RequestIsLongClicked();
+        holder.bookmarkCount.setVisibility(isLongChecked==true?View.GONE:View.VISIBLE);
+        holder.checkBox.setVisibility(isLongChecked==true?View.VISIBLE:View.GONE);
+        holder.checkBox.setChecked(hfrvahfBridge.RequestThisNodeIfChecked(node.nodeNum));
+
+        if (!checkBoxes.contains(holder.checkBox))
+            checkBoxes.add(holder.checkBox);
+        if (!bookmarkCounts.contains(holder.bookmarkCount))
+            bookmarkCounts.add(holder.bookmarkCount);
+
+
+        holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                hfrvahfBridge.OneNodeCheckChangeHappend(node.nodeNum, isChecked);
+            }
+        });
+
+
         holder.relativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //跳转到下一个节点
-                presenter.stepIn(currentPageNode.get(position - (parentNode == null ? 0 : 1)));
+                if (hfrvahfBridge.RequestIsLongClicked() == false) {
+                    presenter.stepIn(currentPageNode.get(position - (parentNode == null ? 0 : 1)));
+                }
             }
         });
+
         holder.relativeLayout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                presenter.changeMenu(false);
+                if (hfrvahfBridge.RequestIsLongClicked() == false){
+                    hfrvahfBridge.LongClickHappend();
+                    TextViewVisibilityChange(View.GONE);
+                    CheckBoxVisibilityChange(View.VISIBLE);
+                    holder.checkBox.setChecked(true);
+                }
                 return true;
             }
         });
 
+    }
+
+    /**
+     * 改变当前页面的TextView的显示状态
+     * @param visibility
+     */
+    private void TextViewVisibilityChange(int visibility) {
+        for (TextView t : bookmarkCounts){
+            if (t!=null)
+                t.setVisibility(visibility);
+        }
+    }
+
+    /**
+     * 改变当前页面的CheckBox的显示状态
+     * @param visibility
+     */
+    private void CheckBoxVisibilityChange(int visibility) {
+        for (CheckBox checkBox : checkBoxes){
+            if (checkBox != null){
+                checkBox.setVisibility(visibility);
+                checkBox.setChecked(false);
+            }
+        }
     }
 
     /**
@@ -187,6 +273,26 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return BOOKMARK;
     }
 
+    /**
+     * 修改界面，被HomeFragment调用
+     */
+    public void resetPage() {
+        CheckBoxVisibilityChange(View.GONE);
+        TextViewVisibilityChange(View.VISIBLE);
+    }
+
+    /**
+     * 改变当前页的CheckBox的状态,只能改变已经显示的过的CheckBox的状态，
+     * 未显示的无法改变
+     */
+    public void changeCheckStatu() {
+        boolean isSelectAll = hfrvahfBridge.RequestIsSelectAll();
+        for (CheckBox checkBox : checkBoxes){
+            if (checkBox != null && (isSelectAll != checkBox.isChecked()))
+                checkBox.setChecked(isSelectAll);
+        }
+    }
+
 
     /**
      * two different Holder
@@ -196,13 +302,14 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView nodeDes;
         TextView bookmarkCount;
         RelativeLayout relativeLayout;
-
+        CheckBox checkBox;
         public NodeHolder(View itemView) {
             super(itemView);
             nodeName = (TextView) itemView.findViewById(R.id.node_nodeName);
             nodeDes = (TextView) itemView.findViewById(R.id.node_nodeDes);
             bookmarkCount = (TextView) itemView.findViewById(R.id.node_bookmarkCount);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.node_relativelayout);
+            checkBox = (CheckBox) itemView.findViewById(R.id.node_check);
         }
     }
 
@@ -211,12 +318,14 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView bookmarkTitle;
         TextView bookmarkUrl;
         LinearLayout linearlayout;
+        CheckBox checkBox;
         public BookmarkHolder(View itemView) {
             super(itemView);
             bookmarkImage = (ImageView) itemView.findViewById(R.id.bookmark_image);
             bookmarkTitle = (TextView) itemView.findViewById(R.id.bookmark_title);
             bookmarkUrl = (TextView) itemView.findViewById(R.id.bookmark_url);
             linearlayout = (LinearLayout) itemView.findViewById(R.id.bookmark_linearlayout);
+            checkBox = (CheckBox) itemView.findViewById(R.id.bookmark_check);
         }
     }
 
@@ -226,5 +335,26 @@ public class HomeFragRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             super(itemView);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.back_relativelayout);
         }
+    }
+
+    private HFRVAHFBridge hfrvahfBridge;
+    public void setHfrvahfBridge(HFRVAHFBridge hfrvahfBridge){
+        this.hfrvahfBridge = hfrvahfBridge;
+    }
+    public interface HFRVAHFBridge{
+        public void LongClickHappend();
+
+        boolean RequestIsLongClicked();
+
+        boolean RequestThisBookmarkIfChecked(int bookmarkNum);
+
+        boolean RequestThisNodeIfChecked(int nodeNum);
+
+        void OneBookmarkCheckChangeHappend(int bookmarkNum, boolean isChecked);
+
+        void OneNodeCheckChangeHappend(int nodeNum, boolean isChecked);
+
+        boolean RequestIsSelectAll();
+
     }
 }

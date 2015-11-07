@@ -1,11 +1,12 @@
 package com.ylqhust.bookmarks.ui;
 
-import android.animation.Animator;
-import android.animation.TimeInterpolator;
-import android.app.ProgressDialog;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,38 +16,43 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ylqhust.bookmarks.R;
-import com.ylqhust.bookmarks.database.DatabaseHelper;
-import com.ylqhust.bookmarks.database.DatabaseModel;
-import com.ylqhust.bookmarks.model.dataModel.Bookmark;
-import com.ylqhust.bookmarks.model.dataModel.Node;
-import com.ylqhust.bookmarks.model.dataModel.SearchHistory;
-import com.ylqhust.bookmarks.presenter.Interface.MainPresenter;
-import com.ylqhust.bookmarks.presenter.Impl.MainPresenterImpl;
+import com.ylqhust.bookmarks.data.database.DatabaseHelper;
+import com.ylqhust.bookmarks.data.database.DatabaseModel;
+import com.ylqhust.bookmarks.mvp.model.Interactor.Impl.MainInteractorImpl;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Bookmark;
+import com.ylqhust.bookmarks.mvp.model.dataModel.Node;
+import com.ylqhust.bookmarks.mvp.model.dataModel.SearchHistory;
+import com.ylqhust.bookmarks.mvp.presenter.Interface.MainPresenter;
+import com.ylqhust.bookmarks.mvp.presenter.Impl.MainPresenterImpl;
+import com.ylqhust.bookmarks.ui.AlertDialog.DeleteDialog;
 import com.ylqhust.bookmarks.ui.Fragment.HomeFragment;
 import com.ylqhust.bookmarks.ui.Fragment.PeopleFragment;
 import com.ylqhust.bookmarks.ui.Fragment.PublicFragment;
 import com.ylqhust.bookmarks.ui.adapter.SearchHistoryAdapter;
 import com.ylqhust.bookmarks.ui.controller.TabController;
 import com.ylqhust.bookmarks.ui.widget.WidgetUtils;
-import com.ylqhust.bookmarks.view.MainView;
+import com.ylqhust.bookmarks.mvp.view.MainView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -54,7 +60,8 @@ public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         MainView ,
         HomeFragment.HMBridge,
-        SearchHistoryAdapter.SHAMBridge{
+        SearchHistoryAdapter.SHAMBridge,MainInteractorImpl.MII_M_Bridge
+,DeleteDialog.DD_ANYNOE_Bridge{
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -63,16 +70,34 @@ public class MainActivity extends AppCompatActivity implements
     private List<Bookmark> headBookmark;
     private static DatabaseHelper dbh;
     private static MainPresenter presenter;
-    private ProgressDialog progressDialog;
 
     private HomeFragment home;
     private PublicFragment publicF;
     private PeopleFragment people;
 
     private LayoutInflater inflater;
-    @Override
+
+    //底部显示的tabLinearLayout
+    private LinearLayout tabL;
+    //底部隐藏的工具栏
+    private LinearLayout toolsL;
+    private RelativeLayout tools_delete;
+    private RelativeLayout tools_send;
+    private RelativeLayout tools_share;
+    private RelativeLayout tools_move;
+    //底部的移动按钮
+    private LinearLayout move_linear;
+    private TextView move_tv;
+
+
+    private boolean isSelectAll = false;
+    private boolean isReadyMove = false;
+
+    private static WeakReference<MainActivity> mainActivity = null;
+    @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
 
+        mainActivity = new WeakReference<MainActivity>(this);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -98,21 +123,109 @@ public class MainActivity extends AppCompatActivity implements
         userHead.setClickable(true);
         userHead.setOnClickListener(this);
 
+        tabL = (LinearLayout) findViewById(R.id.a_m_tab_linear_tabs);
+        toolsL = (LinearLayout) findViewById(R.id.a_m_tab_linear_tools_bar);
         initTabView();
-        progressDialog = new ProgressDialog(this);
+        initToolsView();
+        initMoveView();
 
         if (presenter == null)
-            presenter = new MainPresenterImpl(this);
+            presenter = new MainPresenterImpl(this,this);
         if (dbh == null)
             dbh = new DatabaseHelper(this, DatabaseModel.DB_VERSION);
         //TestData.addData(dbh);
         //初始化数据到内存中
         presenter.LoadDatabase(dbh);
 
-            //init action
+        final Activity activity = mainActivity.get();
+        if (activity !=null && !activity.isFinishing() && !activity.isDestroyed()){
             View init = new View(this);
             init.setId(R.id.a_m_tab_1_relative);
             onClick(init);
+        }
+    }
+
+    private void initMoveView() {
+        move_linear = (LinearLayout) findViewById(R.id.a_m_tab_move_ok);
+        move_tv = (TextView) findViewById(R.id.a_m_tab_tv_move);
+
+        move_linear.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    move_linear.setBackgroundColor(Color.argb(0xff,0x03,0xa9,0xf4));
+                    move_tv.setTextColor(Color.WHITE);
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP){
+                    move_linear.setBackgroundColor(Color.WHITE);
+                    move_tv.setTextColor(Color.argb(0xff,0x03,0xa9,0xf4));
+                }
+                return false;
+            }
+        });
+
+        move_linear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.move();
+            }
+        });
+    }
+
+    private void initToolsView() {
+        tools_delete = (RelativeLayout) findViewById(R.id.tools_rela_delete);
+        tools_move = (RelativeLayout) findViewById(R.id.tools_rela_move);
+        tools_send = (RelativeLayout) findViewById(R.id.tools_rela_send);
+        tools_share = (RelativeLayout) findViewById(R.id.tools_rela_share);
+
+        bindOnTouchListener(tools_delete);
+        bindOnTouchListener(tools_share);
+        bindOnTouchListener(tools_move);
+        bindOnTouchListener(tools_send);
+
+        tools_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeleteDialog.getInstance(MainActivity.this,MainActivity.this).show();
+
+            }
+        });
+
+        tools_share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        tools_send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.send();
+            }
+        });
+
+        tools_move.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isReadyMove = true;
+                presenter.readyMove();
+            }
+        });
+
+    }
+
+    private void bindOnTouchListener(RelativeLayout rela) {
+        rela.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN)
+                    v.setBackgroundColor(Color.RED);
+                if (event.getAction() == MotionEvent.ACTION_UP)
+                    v.setBackgroundColor(Color.argb(0xff,0x03,0xa9,0xf4));
+                return false;
+            }
+        });
     }
 
 
@@ -148,16 +261,25 @@ public class MainActivity extends AppCompatActivity implements
         tabController.setUnSelectImage(unSelectImageIds);
     }
 
+
+    private long exitTime = 0;
     @Override
     public void onBackPressed()
     {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START))
-        {
-            drawerLayout.closeDrawer(GravityCompat.START);
+        if (System.currentTimeMillis() - exitTime >2000){
+            Toast.makeText(this,"再按一次退出",Toast.LENGTH_SHORT).show();
+            exitTime = System.currentTimeMillis();
         }
-        else
-        {
-            super.onBackPressed();
+        else {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+
+            MainActivity.this.finish();
+            System.exit(0);
+            //完全退出程序，完全结束Activity
+            //String finish = null;
+            //finish.length();
         }
     }
 
@@ -183,19 +305,28 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-
+    private int oldIndex = -1;
     @Override
     public void onClick(View v) {
         final int id = v.getId();
         switch(id)
         {
             case R.id.a_m_tab_1_relative:
+                if (oldIndex == R.id.a_m_tab_1_relative)
+                    return;
+                oldIndex = R.id.a_m_tab_1_relative;
                 presenter.HomeTab();
                 break;
             case R.id.a_m_tab_2_relative:
+                if (oldIndex == R.id.a_m_tab_2_relative)
+                    return;
+                oldIndex = R.id.a_m_tab_2_relative;
                 presenter.PublicTab();
                 break;
             case R.id.a_m_tab_3_relative:
+                if (oldIndex == R.id.a_m_tab_3_relative)
+                    return;
+                oldIndex = R.id.a_m_tab_3_relative;
                 presenter.PeopleTab();
                 break;
             case R.id.a_m_n_h_imageview_userhead:
@@ -216,13 +347,13 @@ public class MainActivity extends AppCompatActivity implements
             home.setBridge(this);
         }
         removeFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.activity_main_container, home).commit();
+        this.getSupportFragmentManager().beginTransaction().add(R.id.activity_main_container, home).commitAllowingStateLoss();
     }
 
     private void removeFragment() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.activity_main_container);
+        Fragment fragment = this.getSupportFragmentManager().findFragmentById(R.id.activity_main_container);
         if (fragment != null){
-            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            this.getSupportFragmentManager().beginTransaction().remove(fragment).commit();
         }
     }
 
@@ -232,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements
             publicF = new PublicFragment();
         }
         removeFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.activity_main_container, publicF).commit();
+        this.getSupportFragmentManager().beginTransaction().add(R.id.activity_main_container, publicF).commitAllowingStateLoss();
     }
 
     @Override
@@ -241,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements
             people = new PeopleFragment();
         }
         removeFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.activity_main_container, people).commit();
+        this.getSupportFragmentManager().beginTransaction().add(R.id.activity_main_container, people).commitAllowingStateLoss();
     }
 
     /**
@@ -251,20 +382,10 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void LoadFinished(List<Node> headNode, List<Bookmark> headBookmark) {
-       // progressDialog.dismiss();
         this.headNode = headNode;
         this.headBookmark = headBookmark;
     }
 
-    /**
-     * 正在加载数据库
-     */
-    @Override
-    public void loading() {
-        progressDialog.setMessage("正在加载数据");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//        progressDialog.show();
-    }
 
     /**
      * 显示节点输入的Dialog
@@ -503,6 +624,19 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.a_m_menu_home_addBookmark:
                 presenter.addBookmark(this);
                 break;
+            case R.id.a_m_menu_home_cancle:
+                presenter.cancle(isReadyMove);
+                break;
+            case R.id.a_m_menu_home_selectAll:
+                if (item.getTitle().equals(getResources().getString(R.string.selectAll))){
+                    isSelectAll = true;
+                    item.setTitle(R.string.NoselectAll);
+                }
+                else{
+                    isSelectAll = false;
+                    item.setTitle(R.string.selectAll);
+                }
+                home.IsSelectAllStatuChangeHappend();
         }
         return true;
     }
@@ -602,25 +736,198 @@ public class MainActivity extends AppCompatActivity implements
         toast.show();
     }
 
+
     /**
-     * 改变菜单
+     * 可发送内容解析完毕，等待发送
+     * @param s
      */
     @Override
-    public void changeMenu(boolean flag) {
-        item_addBK.setVisible(flag);
-        item_addNode.setVisible(flag);
-        item_search.setVisible(flag);
-        item_selectAll.setVisible(!flag);
-        item_cancle.setVisible(!flag);
-        item_null.setVisible(!flag);
+    public void onSendParseFinished(String s) {
+        System.out.println("sendText:" + s);
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.putExtra(Intent.EXTRA_TEXT, s);
+        send.setType("text/plain");
+        startActivity(send);
+    }
+
+    /**
+     * 删除完成
+     * @param nodes
+     * @param bookmarks
+     */
+    @Override
+    public void onDeleteFinished(List<Node> nodes, List<Bookmark> bookmarks) {
+        Toast.makeText(this,R.string.deletecomplete,Toast.LENGTH_SHORT).show();
+        home.showData(nodes, bookmarks,home.getParentNode());
+    }
+
+    /**
+     * 隐藏工具栏
+     */
+    @Override
+    public void hideToolsBar() {
+        toolsL.setVisibility(View.GONE);
+    }
+
+    /**
+     * 显示移动按钮
+     */
+    @Override
+    public void showMoveBar() {
+        move_linear.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public boolean onKeyDown(int keyCode,KeyEvent event){
-        if (keyCode == KeyEvent.KEYCODE_BACK){
-            this.finish();
-        }
-        return super.onKeyDown(keyCode,event);
+    public void hideMoveBar() {
+        move_linear.setVisibility(View.GONE);
+    }
+
+
+    /**
+     * 隐藏三个菜单
+     */
+    @Override
+    public void hideThreeMenu() {
+        item_addBK.setVisible(false);
+        item_addNode.setVisible(false);
+        item_search.setVisible(false);
+    }
+
+    @Override
+    public void showCancleMenu() {
+        item_cancle.setVisible(true);
+    }
+
+    @Override
+    public void showSelectAllMenu() {
+        item_selectAll.setVisible(true);
+    }
+
+    @Override
+    public void hideTabBar() {
+        tabL.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showToolsBar() {
+        toolsL.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideSelectAllMenu() {
+        item_selectAll.setVisible(false);
+    }
+
+    @Override
+    public void resetSelectMenuText() {
+        item_selectAll.setTitle(R.string.selectAll);
+    }
+
+    @Override
+    public void showTabBar() {
+        tabL.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showThreeMenu() {
+        item_addBK.setVisible(true);
+        item_addNode.setVisible(true);
+        item_search.setVisible(true);
+    }
+
+    @Override
+    public void hideCancleMenu() {
+        item_cancle.setVisible(false);
+    }
+
+    /**
+     * 取消移动，通知homeFragment 恢复自身
+     */
+    @Override
+    public void cancleMoveComplete() {
+        isReadyMove = false;
+        home.cancleMove();
+    }
+
+    /**
+     * 完全取消，通知homeFragment恢复自身
+     */
+    @Override
+    public void cancleComplete() {
+        home.resetPage();
+    }
+
+    /**
+     * 通知HomeFragment改变界面，准备移动
+     */
+    @Override
+    public void HMReadyMove() {
+        home.ReadyMove();
+    }
+
+    @Override
+    public void onMoveFinished() {
+        isReadyMove = false;
+        home.onMoveFinished();
+    }
+
+    @Override
+    public void showToast(int checknullerror) {
+        Toast.makeText(this,checknullerror,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void showSnackBar(int checknullerror) {
+        Snackbar.make(toolsL,checknullerror,Snackbar.LENGTH_SHORT).show();
+    }
+
+
+    @Override
+    public List<Node> RequestHeadNode() {
+        return headNode;
+    }
+
+    @Override
+    public List<Bookmark> RequestHeadBookmark() {
+        return headBookmark;
+    }
+
+    @Override
+    public Set<Integer> RequestCheckNodeNum() {
+        return home.getCheckedNodeNum();
+    }
+
+    @Override
+    public Set<Integer> RequestCheckBookmark() {
+        return home.getCheckedBookmarkNum();
+    }
+
+    @Override
+    public Node RequestParentNode() {
+        return home.getParentNode();
+    }
+
+    @Override
+    public DatabaseHelper RequestDbh() {
+        return dbh;
+    }
+
+    @Override
+    public Node RequestDistanceNode() {
+        return home.getDistanceNode();
+    }
+
+    @Override
+    public boolean RequestIsSelectAll() {
+        return isSelectAll;
+    }
+
+    /**
+     * HomeFragment 通知MainActivity，长按事件发生了
+     */
+    @Override
+    public void LongClickHappend() {
+        presenter.LongClickHappend();
     }
 
     @Override
@@ -630,6 +937,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void clearHistory(int position, List<String> strings) {
-        presenter.clearOneHistory(position,strings,dbh);
+        presenter.clearOneHistory(position, strings, dbh);
+    }
+    /**
+     * 确定可以删除选中的文件
+     */
+    @Override
+    public void DeleteYes() {
+        presenter.deleteAllSelect();
     }
 }
